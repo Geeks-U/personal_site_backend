@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 
 // 业务逻辑
-import { servSendEmailCaptcha } from "../services/login"
+import { servSendEmailCaptcha, generateToken, verifyToken } from "../services/login"
 
 // 用于存储邮箱和验证码的映射关系
 const captchaStore = new Map<string, string>()
@@ -37,14 +37,53 @@ export const ctrlSendEmailCaptcha = async (req: Request, res: Response) => {
 
 // 校验验证码，使用req和res作为参数
 export const ctrlVerifyEmailCaptcha = (req: Request, res: Response): void => {
-    const { email, captcha } = req.body
-  
-    const storedCaptcha = captchaStore.get(email)
-    if (!storedCaptcha) {
-        res.status(400).json({ success: false, message: '验证码已过期或无效', data:{} })
-    } else if (storedCaptcha !== captcha) {
-      res.status(400).json({ success: false, message: '验证码错误', data:{} })
-    } else {
-      res.status(200).json({ success: true, message: '验证码验证成功', data:{cookie: 'cook'} })
-    }
+  const { email, captcha } = req.body
+  const storedCaptcha = captchaStore.get(email)
+
+  if (!storedCaptcha) {
+    res.status(400).json({ success: false, message: '验证码已过期或无效', data:{} })
+  } else if (storedCaptcha !== captcha) {
+    res.status(400).json({ success: false, message: '验证码错误', data:{} })
+  } else {
+    // 验证成功，生成 JWT
+    const token = generateToken({username: email})
+
+    // 可选：清除验证码
+  //   captchaStore.delete(email)
+
+    res.status(200).json({
+      success: true,
+      message: '验证码验证成功',
+      data: {
+        token
+      }
+    })
+  }
+}
+
+// token验证
+export const ctrlVerifyToken = (req: Request, res: Response): void => {
+  const { token } = req.body
+
+  if (!token) {
+    res.status(400).json({ success: false, message: '缺少 token', data: {} })
+    return
+  }
+
+  try {
+    const decoded = verifyToken(token)
+    res.status(200).json({
+      success: true,
+      message: 'Token 有效',
+      data: {
+        user: decoded
+      }
+    })
+  } catch (err) {
+    res.status(401).json({
+      success: false,
+      message: 'Token 无效或已过期',
+      data: {}
+    })
+  }
 }

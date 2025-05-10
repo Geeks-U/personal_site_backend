@@ -1,3 +1,4 @@
+/*------------------------------------- 邮箱登录相关 -------------------------------------*/
 import nodemailer from 'nodemailer'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import crypto from 'crypto'
@@ -50,4 +51,25 @@ export const servSendEmailCaptcha = async (email: string): Promise<{ captcha: st
     } else {
       return { captcha: '', success: false, message: '发送失败' }
     }
+}
+
+/*------------------------------------- token相关 -------------------------------------*/
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'taudre11'
+const JWT_EXPIRATION = '1h'  // Token 过期时间
+
+// 生成 JWT
+export const generateToken = (payload: object): string => {
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION })
+  return token
+}
+
+// 验证 JWT
+export const verifyToken = (token: string): object | string => {
+  try {
+    return jwt.verify(token, JWT_SECRET)
+  } catch (error) {
+    throw new Error('Invalid token')
+  }
 }
