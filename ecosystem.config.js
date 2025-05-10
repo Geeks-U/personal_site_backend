@@ -9,7 +9,7 @@ module.exports = {
       env: {
         NODE_ENV: 'development',      // 开发环境变量
         HOST: '0.0.0.0',
-        PORT: 8000
+        PORT: 9000
       },
       env_production: {
         NODE_ENV: 'production',       // 生产环境变量
