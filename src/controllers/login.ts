@@ -39,6 +39,8 @@ export const ctrlSendEmailCaptcha = async (req: Request, res: Response) => {
 export const ctrlVerifyEmailCaptcha = (req: Request, res: Response): void => {
   const { email, captcha } = req.body
   const storedCaptcha = captchaStore.get(email)
+  console.log('服务器验证码：', storedCaptcha)
+  console.log('客户端验证码：', captcha)
 
   if (!storedCaptcha) {
     res.status(400).json({ success: false, message: '验证码已过期或无效', data:{} })
