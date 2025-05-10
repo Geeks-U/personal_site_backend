@@ -8,9 +8,13 @@ module.exports = {
       watch: true,                    // 监听文件变化并重启应用
       env: {
         NODE_ENV: 'development',      // 开发环境变量
+        HOST: '0.0.0.0',
+        PORT: 8000
       },
       env_production: {
         NODE_ENV: 'production',       // 生产环境变量
+        HOST: '0.0.0.0',
+        PORT: 8000
       },
     },
   ],
